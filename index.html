@@ -20,7 +20,7 @@
   </head>
   <body>
     <div id="title-container">
-      <h2 id="title">Vtuber Debut Inv <span id="version">(v1.6)</span></h2>
+      <h2 id="title">Vtuber Debut Inv <span id="version">(v1.7)</span></h2>
       <p style="font-size: 14px; margin-top: 10px">
         Render your debut invitation names with no time (by DekReza)
       </p>
@@ -29,7 +29,7 @@
       <options-panel>
         <div id="options">
           <input-editor>
-            <div class="input-section">
+            <div class="input-group">
               <label for="names-input" id="input-title">Input Names</label>
               <p class="sub-title" style="font-size: 13px !important">
                 add comma (,) to separates names
@@ -40,19 +40,20 @@
                 placeholder="Vtuber Name1, Vtuber Name2, Dekreza"
               />
             </div>
-            <div class="input-section" style="margin-top: 16px">
+            <div class="input-group" style="margin-top: 16px">
               <label for="names-input" id="input-title">Message Template</label>
               <p class="sub-title" style="font-size: 13px !important">
                 add {name} to replace names
               </p>
               <textarea
+                class="input"
                 id="message-template"
                 placeholder="Hello {name}, you're invited to..."
               ></textarea>
             </div>
           </input-editor>
-          <div class="flex-col">
-            <div class="flex-col" style="margin-top: 25px">
+          <div style="width: 100%">
+            <div class="" style="margin-top: 25px">
               <p class="title">Image Size Setting</p>
               <p class="sub-title" style="font-size: 13px !important">
                 Fill input below according your original image size,
@@ -61,24 +62,22 @@
                 >
               </p>
             </div>
-            <div
-              class="flex-row"
-              style="margin-top: 10px; flex-wrap: wrap; width: 100%"
-            >
-              <div class="flex-col" style="width: calc(50% - 5px)">
+            <div class="input-wrapper">
+              <div class="input-group">
                 <label for="width" class="sub-title">Image Width</label>
                 <input
                   type="number"
+                  class="input-col"
                   id="width"
                   value=""
                   placeholder="e.g. 1080"
                 />
               </div>
-              <div class="flex-col" style="width: calc(50% - 5px)">
+              <div class="input-group">
                 <label for="height" class="sub-title">Image height</label>
                 <input
                   type="number"
-                  id="height"
+                  id="height input-col"
                   value=""
                   placeholder="e.g. 1080"
                 />
@@ -86,29 +85,27 @@
             </div>
           </div>
           <div class="name-setting">
-            <div class="flex-col" style="margin-top: 25px">
+            <div class="input-group" style="margin-top: 25px">
               <p class="title">Text Name Setting</p>
               <p class="sub-title" style="font-size: 13px !important">
                 Set your names text style
               </p>
             </div>
-            <div class="flex-row" style="margin-top: 10px; flex-wrap: wrap">
-              <div
-                style="
-                  margin-top: 0px;
-                  display: flex;
-                  flex-direction: row;
-                  gap: 10px;
-                  flex-wrap: wrap;
-                "
-              >
-                <div class="flex-col">
+            <div class="input-group" style="margin-top: 10px; flex-wrap: wrap">
+              <div class="input-wrapper">
+                <div class="input-group">
                   <label for="text-color-picker" class="sub-title"
                     >Text Color</label
                   >
-                  <input type="text" id="text-color-picker" data-coloris />
+                  <input
+                    class="input"
+                    type="text"
+                    id="text-color-picker"
+                    data-coloris
+                  />
                 </div>
-                <div class="flex-col">
+
+                <div class="input-group">
                   <p class="sub-title">Text Align</p>
                   <div>
                     <button class="align-btn" id="left-align">
@@ -168,6 +165,21 @@
                   </div>
                 </div>
               </div>
+
+              <div class="input-wrapper">
+                <div class="input-group">
+                  <label for="line-height" class="sub-title">Line height</label>
+                  <input type="number" id="line-height" />
+                </div>
+                <div class="input-group">
+                  <label for="font-family" class="sub-title">Input Font</label>
+                  <input
+                    type="file"
+                    id="font-family"
+                    accept=".ttf,  .otf,  .woff, .woff2 "
+                  />
+                </div>
+              </div>
               <div
                 style="
                   margin-top: 10px;
@@ -177,17 +189,26 @@
                   width: 100%;
                 "
               >
-                <div class="flex-col" style="width: calc(50% - 5px)">
-                  <label for="line-height" class="sub-title">Line height</label>
-                  <input type="number" id="line-height" />
-                </div>
-                <div class="flex-col" style="width: calc(50% - 5px)">
-                  <label for="font-family" class="sub-title">Input Font</label>
-                  <input
-                    type="file"
-                    id="font-family"
-                    accept=".ttf,  .otf,  .woff, .woff2 "
-                  />
+                <div class="input-group">
+                  <label for="font-family" class="sub-title">Text Blend</label>
+                  <select id="text-blend" class="input">
+                    <option value="normal">Normal</option>
+                    <option value="multiply">Multiply</option>
+                    <option value="screen">Screen</option>
+                    <option value="overlay">Overlay</option>
+                    <option value="darken">Darken</option>
+                    <option value="lighten">Lighten</option>
+                    <option value="color-dodge">Color Dodge</option>
+                    <option value="color-burn">Color Burn</option>
+                    <option value="hard-light">Hard Light</option>
+                    <option value="soft-light">Soft Light</option>
+                    <option value="difference">Difference</option>
+                    <option value="exclusion">Exclusion</option>
+                    <option value="hue">Hue</option>
+                    <option value="saturation">Saturation</option>
+                    <option value="color">Color</option>
+                    <option value="luminosity">Luminosity</option>
+                  </select>
                 </div>
               </div>
             </div>

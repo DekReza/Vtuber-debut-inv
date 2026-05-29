@@ -4,6 +4,7 @@ const rotateHandle = previewText.querySelector(".rotate");
 const leftAlignBtn = document.getElementById("left-align");
 const centerAlignBtn = document.getElementById("center-align");
 const rightAlignBtn = document.getElementById("right-align");
+const textBlend = document.getElementById("text-blend");
 
 const alignButtons = document.querySelectorAll(".align-btn");
 
@@ -175,6 +176,11 @@ rightAlignBtn.addEventListener("click", () => {
 
 // Default align active
 setActiveAlign(leftAlignBtn);
+
+// text blend
+textBlend.addEventListener("change", () => {
+  previewText.style.mixBlendMode = textBlend.value;
+});
 
 // set max width
 const leftHandle = previewText.querySelector(".left");
