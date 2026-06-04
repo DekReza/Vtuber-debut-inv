@@ -1,6 +1,8 @@
 const previewText = document.getElementById("name");
-const handle = previewText.querySelector(".handle");
-const rotateHandle = previewText.querySelector(".rotate");
+const handlesLayer = document.getElementById("handles-layer"); // New handles layer
+const handle = document.getElementById("handle-resize");
+const rotateHandle = document.getElementById("handle-rotate");
+const leftHandle = document.getElementById("handle-resize-left");
 const leftAlignBtn = document.getElementById("left-align");
 const centerAlignBtn = document.getElementById("center-align");
 const rightAlignBtn = document.getElementById("right-align");
@@ -13,8 +15,6 @@ const FAST_STEP = 20;
 const FINE_STEP = 1;
 let rotation = 0;
 
-// Handle text control
-
 let pos = { x: 100, y: 100 };
 let scale = 1;
 
@@ -25,23 +25,24 @@ let startMouse = { x: 0, y: 0 };
 let startPos = { x: 0, y: 0 };
 let startScale = 1;
 
-// Rotate variable
-
 let isRotating = false;
 let center = { x: 0, y: 0 };
 let startAngle = 0;
 let startRotation = 0;
 
-// max width
 let isResizingLeft = false;
 let startWidth = 0;
 let startX = 0;
 
+// Update synchronizes both the text and the invisible handles layer
 function update() {
   previewText.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale}) rotate(${rotation}deg)`;
+
+  handlesLayer.style.width = previewText.offsetWidth + "px";
+  handlesLayer.style.height = previewText.offsetHeight + "px";
+  handlesLayer.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale}) rotate(${rotation}deg)`;
 }
 
-// Select
 previewText.setAttribute("draggable", false);
 
 previewText.addEventListener("dragstart", (e) => {
@@ -49,8 +50,7 @@ previewText.addEventListener("dragstart", (e) => {
 });
 
 previewText.addEventListener("mousedown", (e) => {
-  if (e.target === handle) return;
-  previewText.classList.add("selected");
+  handlesLayer.classList.add("selected");
 
   isDragging = true;
   startMouse.x = e.clientX;
@@ -58,10 +58,9 @@ previewText.addEventListener("mousedown", (e) => {
   startPos = { ...pos };
 });
 
-// Resize
 handle.addEventListener("mousedown", (e) => {
   e.stopPropagation();
-  previewText.classList.add("selected");
+  handlesLayer.classList.add("selected");
 
   isResizing = true;
   startMouse.x = e.clientX;
@@ -70,14 +69,12 @@ handle.addEventListener("mousedown", (e) => {
 });
 
 document.addEventListener("mousemove", (e) => {
-  // Drag
   if (isDragging) {
     pos.x = startPos.x + (e.clientX - startMouse.x);
     pos.y = startPos.y + (e.clientY - startMouse.y);
     update();
   }
 
-  // Resize
   if (isResizing) {
     const dx = e.clientX - startMouse.x;
     const dy = e.clientY - startMouse.y;
@@ -87,7 +84,6 @@ document.addEventListener("mousemove", (e) => {
     update();
   }
 
-  // Rotate
   if (isRotating) {
     const angle = Math.atan2(e.clientY - center.y, e.clientX - center.x);
     const delta = angle - startAngle;
@@ -96,18 +92,13 @@ document.addEventListener("mousemove", (e) => {
     update();
   }
 
-  // width
   if (isResizingLeft) {
     const dx = e.clientX - startMouse.x;
-
     let newWidth = startWidth - dx;
-    newWidth = Math.max(50, newWidth); // min width
+    newWidth = Math.max(50, newWidth);
 
     previewText.style.width = newWidth + "px";
-
-    // shift position so right side stays fixed
     pos.x = startX + dx;
-
     update();
   }
 });
@@ -118,20 +109,18 @@ document.addEventListener("mouseup", () => {
   isResizingLeft = false;
 });
 
-// Click outside to deselect
 document.addEventListener("mousedown", (e) => {
-  if (!previewText.contains(e.target)) {
-    previewText.classList.remove("selected");
+  if (!previewText.contains(e.target) && !handlesLayer.contains(e.target)) {
+    handlesLayer.classList.remove("selected");
   }
 });
 
-// rotate
 rotateHandle.addEventListener("mousedown", (e) => {
   e.stopPropagation();
   e.preventDefault();
 
   isRotating = true;
-  previewText.classList.add("selected");
+  handlesLayer.classList.add("selected");
 
   const rect = previewText.getBoundingClientRect();
   center.x = rect.left + rect.width / 2;
@@ -147,50 +136,41 @@ document.addEventListener("mouseup", () => {
 
 update();
 
-// algin text control
 function setActiveAlign(button) {
   alignButtons.forEach((btn) => {
     btn.classList.remove("active-align");
   });
-
   button.classList.add("active-align");
 }
 
-// Left
 leftAlignBtn.addEventListener("click", () => {
   previewText.style.textAlign = "left";
   setActiveAlign(leftAlignBtn);
 });
 
-// Center
 centerAlignBtn.addEventListener("click", () => {
   previewText.style.textAlign = "center";
   setActiveAlign(centerAlignBtn);
 });
 
-// Right
 rightAlignBtn.addEventListener("click", () => {
   previewText.style.textAlign = "right";
   setActiveAlign(rightAlignBtn);
 });
 
-// Default align active
 setActiveAlign(leftAlignBtn);
 
-// text blend
+// Blend mode applied directly to parent text layer
 textBlend.addEventListener("change", () => {
   previewText.style.mixBlendMode = textBlend.value;
 });
-
-// set max width
-const leftHandle = previewText.querySelector(".left");
 
 leftHandle.addEventListener("mousedown", (e) => {
   e.stopPropagation();
   e.preventDefault();
 
   isResizingLeft = true;
-  previewText.classList.add("selected");
+  handlesLayer.classList.add("selected");
 
   startMouse.x = e.clientX;
   startWidth = previewText.offsetWidth;
@@ -198,8 +178,7 @@ leftHandle.addEventListener("mousedown", (e) => {
 });
 
 document.addEventListener("keydown", (e) => {
-  // only move when selected
-  if (!previewText.classList.contains("selected")) return;
+  if (!handlesLayer.classList.contains("selected")) return;
 
   let step = MOVE_STEP;
   if (e.shiftKey) step = FAST_STEP;
@@ -225,11 +204,10 @@ document.addEventListener("keydown", (e) => {
   }
 
   if (moved) {
-    e.preventDefault(); // prevent page scroll
+    e.preventDefault();
     update();
   }
 });
-// End Handle text control
 
 function toggleDownloadButton() {
   const renderedName = document.getElementById("Rendered-name");
@@ -241,7 +219,6 @@ function toggleDownloadButton() {
   }
 }
 
-// Buat render nama
 function renderNames() {
   const input = document.getElementById("names-input").value;
   const template = document.getElementById("message-template").value;
@@ -256,81 +233,65 @@ function renderNames() {
     const nameItem = document.createElement("div");
     nameItem.className = "name-item";
 
-    // TOP ROW
     const topRow = document.createElement("div");
     topRow.className = "name-top-row";
 
-    // Name
     const nameText = document.createElement("span");
     nameText.textContent = `${index + 1}. ${name}`;
-    // Download button
+
     const downloadButton = document.createElement("button");
     downloadButton.id = "download-button";
 
     downloadButton.onclick = (e) => {
       e.stopPropagation();
-
-      previewText.childNodes[0].nodeValue = name;
-
+      previewText.textContent = name;
+      update();
       downloadAsImage(name, index);
     };
 
     topRow.appendChild(nameText);
-
     topRow.appendChild(downloadButton);
 
-    // Generated Message
     if (template.includes("{name}")) {
       const generatedMessage = document.createElement("div");
-
       generatedMessage.className = "generated-message";
-
       const finalMessage = template.replaceAll("{name}", name);
-
       generatedMessage.textContent = finalMessage;
 
       generatedMessage.addEventListener("click", async (e) => {
         e.stopPropagation();
-
         await navigator.clipboard.writeText(finalMessage);
-
         const oldText = generatedMessage.textContent;
-
         generatedMessage.textContent = "Copied!";
-
         generatedMessage.classList.add("copied");
 
         setTimeout(() => {
           generatedMessage.textContent = oldText;
-
           generatedMessage.classList.remove("copied");
         }, 1000);
       });
 
       nameItem.appendChild(topRow);
-
       nameItem.appendChild(generatedMessage);
     } else {
       nameItem.appendChild(topRow);
     }
 
-    // Preview selected
     nameItem.addEventListener("click", () => {
-      previewText.childNodes[0].nodeValue = name;
-
+      previewText.textContent = name;
+      update();
       document.querySelectorAll(".name-item").forEach((item) => {
         item.classList.remove("active-name-item");
       });
-
       nameItem.classList.add("active-name-item");
     });
 
     container.appendChild(nameItem);
   });
 
-  // Auto preview first name
   if (names.length > 0) {
-    previewText.childNodes[0].nodeValue = names[0];
+    previewText.textContent = names[0];
+    update();
     const firstItem = container.querySelector(".name-item");
     if (firstItem) {
       firstItem.classList.add("active-name-item");
@@ -341,26 +302,54 @@ function renderNames() {
 
 toggleDownloadButton();
 
-// buat download gambar
 function downloadAsImage(name, index) {
   const captureElement = document.getElementById("image-preview");
-  const width = document.getElementById("width").value;
-  const height = document.getElementById("height").value;
+  const invImage = document.getElementById("inv-image");
+  const textBlendMode = document.getElementById("text-blend").value;
+
+  const width = invImage.naturalWidth;
+  const height = invImage.naturalHeight;
+
   captureElement.style.transform = "scale(1)";
   captureElement.style.width = `${width}px`;
   captureElement.style.height = `${height}px`;
-  console.log(width, height);
+
+  invImage.style.display = "none";
+  handlesLayer.style.display = "none";
+
+  const currentBlendMode = previewText.style.mixBlendMode;
+  previewText.style.mixBlendMode = "normal";
+
   html2canvas(captureElement, {
-    width: width, // custom width
-    height: height, // custom height
-  }).then(function (canvas) {
-    var dataURL = canvas.toDataURL("image/png");
+    width: width,
+    height: height,
+    scale: 1,
+    backgroundColor: null,
+  }).then(function (textCanvas) {
+    invImage.style.display = "block";
+    handlesLayer.style.display = "block";
+    previewText.style.mixBlendMode = currentBlendMode;
+
+    const finalCanvas = document.createElement("canvas");
+    finalCanvas.width = width;
+    finalCanvas.height = height;
+    const ctx = finalCanvas.getContext("2d");
+
+    ctx.drawImage(invImage, 0, 0, width, height);
+
+    ctx.globalCompositeOperation =
+      textBlendMode === "normal" ? "source-over" : textBlendMode;
+
+    ctx.drawImage(textCanvas, 0, 0);
+
+    var dataURL = finalCanvas.toDataURL("image/png");
     var link = document.createElement("a");
     link.download = `${name}.png`;
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
     captureElement.style.transform = "scale(0.5)";
   });
 }
@@ -368,24 +357,21 @@ function downloadAsImage(name, index) {
 document.addEventListener("DOMContentLoaded", function () {
   const LHeight = document.getElementById("line-height");
   const textColor = document.getElementById("text-color-picker");
-  const name = document.getElementById("name");
 
   textColor.addEventListener("input", function () {
-    name.style.color = textColor.value;
+    previewText.style.color = textColor.value;
   });
   LHeight.addEventListener("input", function () {
-    name.style.lineHeight = LHeight.value + "px";
+    previewText.style.lineHeight = LHeight.value + "px";
   });
 });
+
 window.addEventListener("DOMContentLoaded", function () {
   hardReload();
 });
 
-// Buat validasi kalo misal input name kosong, tombol render result akan disable
 const input = document.getElementById("names-input");
 const renderBtn = document.getElementById("render-button");
-const width = document.getElementById("width");
-const height = document.getElementById("height");
 input.addEventListener("input", function () {
   if (input.value === "") {
     renderBtn.disabled = true;
@@ -393,27 +379,25 @@ input.addEventListener("input", function () {
     renderBtn.disabled = false;
   }
 });
-// Buat clear all value
+
 function hardReload() {
   const inputName = document.getElementById("names-input");
-  const width = document.getElementById("width");
-  const height = document.getElementById("height");
   const renderBtn = document.getElementById("render-button");
   const style = document.getElementById("font-family");
   const nameColor = document.getElementById("text-color-picker");
   const lineHeight = document.getElementById("line-height");
   const msgInput = document.getElementById("message-template");
+  const textBlendSelector = document.getElementById("text-blend");
 
   inputName.value = "";
-  width.value = "";
-  height.value = "";
   renderBtn.disabled = true;
   style.value = "";
   nameColor.value = "#ffffff";
   lineHeight.value = 67;
   msgInput.value = "";
+  textBlendSelector.value = "normal";
 }
-// Buat upload gambar undangannya
+
 document
   .getElementById("upload-invitation")
   .addEventListener("change", function (event) {
@@ -427,17 +411,18 @@ document
         img.id = "inv-image";
 
         const oldImg = document.getElementById("inv-image");
+        const previewContainer = document.getElementById("image-preview");
+
         if (oldImg) {
-          document.getElementById("image-preview").removeChild(oldImg);
+          previewContainer.removeChild(oldImg);
         }
 
-        document.getElementById("image-preview").appendChild(img);
+        previewContainer.insertBefore(img, previewText);
       };
       reader.readAsDataURL(file);
     }
   });
 
-// Buat upload font family
 document
   .getElementById("font-family")
   .addEventListener("change", function (event) {
@@ -454,7 +439,7 @@ document
                     font-family: '${fontName}';
                     src: url(${fontData});
                 }
-                #image-preview p {
+                #image-preview p, #image-preview div {
                     font-family: '${fontName}';
                 }
             `;
@@ -463,67 +448,87 @@ document
       reader.readAsDataURL(file);
     }
   });
-function downloadAllImages() {
+
+async function downloadAllImages() {
   const names = document
     .getElementById("names-input")
     .value.split(",")
     .map((name) => name.trim());
+
   const zip = new JSZip();
   const downloadButtonAll = document.getElementById("download-all-button");
   const captureElement = document.getElementById("image-preview");
-  const width = document.getElementById("width").value;
-  const height = document.getElementById("height").value;
+  const invImage = document.getElementById("inv-image");
+  const textBlendMode = document.getElementById("text-blend").value;
+
+  const width = invImage.naturalWidth;
+  const height = invImage.naturalHeight;
+
   captureElement.style.transform = "scale(1)";
   captureElement.style.width = `${width}px`;
   captureElement.style.height = `${height}px`;
-  let promises = [];
+
   downloadButtonAll.textContent = "Downloading...";
   downloadButtonAll.style.backgroundColor = "#faff70";
   downloadButtonAll.style.color = "#000000";
 
-  names.forEach((name, index) => {
-    promises.push(
-      new Promise((resolve, reject) => {
-        const previewText = document.getElementById("name");
-        previewText.textContent = name;
-        html2canvas(captureElement, {
-          width: width,
-          height: height,
-        })
-          .then((canvas) => {
-            canvas.toBlob((blob) => {
-              zip.file(`${name}.png`, blob);
-              resolve();
-            });
-          })
-          .catch((error) => reject(error));
-      }),
-    );
-  });
+  invImage.style.display = "none";
+  handlesLayer.style.display = "none";
 
-  Promise.all(promises)
-    .then(() => {
-      zip.generateAsync({ type: "blob" }).then((content) => {
-        setTimeout(() => {
-          downloadButtonAll.textContent = "All downloaded";
-          downloadButtonAll.style.backgroundColor = "#75ff70";
-          downloadButtonAll.style.color = "#000000";
-          setTimeout(() => {
-            downloadButtonAll.textContent = "Download";
-            downloadButtonAll.style.backgroundColor = "#b53df9";
-            downloadButtonAll.style.color = "#ffffff";
-          }, 3000);
-        }, 300);
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(content);
-        link.download = "images.zip";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        captureElement.style.transform = "scale(0.5)";
+  const currentBlendMode = previewText.style.mixBlendMode;
+  previewText.style.mixBlendMode = "normal";
+
+  try {
+    for (const name of names) {
+      previewText.textContent = name;
+      update();
+
+      const textCanvas = await html2canvas(captureElement, {
+        width: width,
+        height: height,
+        scale: 1,
+        backgroundColor: null,
       });
-    })
-    .catch((error) => {
-      console.error("Error generating zip file:", error);
-    });
+
+      const finalCanvas = document.createElement("canvas");
+      finalCanvas.width = width;
+      finalCanvas.height = height;
+      const ctx = finalCanvas.getContext("2d");
+
+      ctx.drawImage(invImage, 0, 0, width, height);
+      ctx.globalCompositeOperation =
+        textBlendMode === "normal" ? "source-over" : textBlendMode;
+      ctx.drawImage(textCanvas, 0, 0);
+
+      const blob = await new Promise((resolve) => finalCanvas.toBlob(resolve));
+      zip.file(`${name}.png`, blob);
+    }
+
+    const content = await zip.generateAsync({ type: "blob" });
+
+    setTimeout(() => {
+      downloadButtonAll.textContent = "All downloaded";
+      downloadButtonAll.style.backgroundColor = "#75ff70";
+      downloadButtonAll.style.color = "#000000";
+      setTimeout(() => {
+        downloadButtonAll.textContent = "Download All";
+        downloadButtonAll.style.backgroundColor = "#b53df9";
+        downloadButtonAll.style.color = "#ffffff";
+      }, 3000);
+    }, 300);
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(content);
+    link.download = "images.zip";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("Error generating zip file:", error);
+  } finally {
+    invImage.style.display = "block";
+    handlesLayer.style.display = "block";
+    previewText.style.mixBlendMode = currentBlendMode;
+    captureElement.style.transform = "scale(0.5)";
+  }
 }

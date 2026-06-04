@@ -43,7 +43,7 @@ body {
   width: calc(100% - 35px);
 }
 /* selection border */
-#name.selected {
+.selected {
   outline: 3px dashed #4da3ff;
 }
 #name {
@@ -94,13 +94,7 @@ body {
   background: var(--drag-svg), var(--foreground-color);
 }
 
-#name.selected .handle.left {
-  display: block;
-}
-#name.selected .handle.rotate {
-  display: block;
-}
-#name.selected .handle {
+.selected .handle {
   display: block;
 }
 
@@ -125,7 +119,6 @@ body {
 }
 
 preview-panel {
-  /* height: fit-content; */
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -435,4 +428,8 @@ preview-panel {
   h2 {
     font-size: 30px !important;
   }
+}
+
+.handle {
+  mix-blend-mode: normal !important;
 }

@@ -20,7 +20,7 @@
   </head>
   <body>
     <div id="title-container">
-      <h2 id="title">Vtuber Debut Inv <span id="version">(v1.7)</span></h2>
+      <h2 id="title">Vtuber Debut Inv <span id="version">(v1.8.0)</span></h2>
       <p style="font-size: 14px; margin-top: 10px">
         Render your debut invitation names with no time (by DekReza)
       </p>
@@ -52,39 +52,7 @@
               ></textarea>
             </div>
           </input-editor>
-          <div style="width: 100%">
-            <div class="" style="margin-top: 25px">
-              <p class="title">Image Size Setting</p>
-              <p class="sub-title" style="font-size: 13px !important">
-                Fill input below according your original image size,
-                <span style="color: #ff7070; font-weight: bold">
-                  don't let it empty!!!!</span
-                >
-              </p>
-            </div>
-            <div class="input-wrapper">
-              <div class="input-group">
-                <label for="width" class="sub-title">Image Width</label>
-                <input
-                  type="number"
-                  class="input-col"
-                  id="width"
-                  value=""
-                  placeholder="e.g. 1080"
-                />
-              </div>
-              <div class="input-group">
-                <label for="height" class="sub-title">Image height</label>
-                <input
-                  type="number"
-                  class="input-col"
-                  id="height"
-                  value=""
-                  placeholder="e.g. 1080"
-                />
-              </div>
-            </div>
-          </div>
+
           <div class="name-setting">
             <div class="input-group" style="margin-top: 25px">
               <p class="title">Text Name Setting</p>
@@ -257,13 +225,17 @@
       </options-panel>
       <preview-panel>
         <p class="title">Preview</p>
-        <div class="flex-row" style="align-items: center">
-          <p class="sub-title">Select Image</p>
+        <div class="input-group" style="width: fit-content; margin: 15px 0px">
+          <label for="font-family" class="sub-title"
+            >Select Invitation Design</label
+          >
           <input type="file" id="upload-invitation" accept="image/*" />
         </div>
-        <div id="image-preview">
+
+        <div id="image-preview" style="position: relative">
           <img src="src/img/Debut-Inv.png" id="inv-image" draggable="false" />
-          <p
+
+          <div
             id="name"
             style="
               top: 0px;
@@ -271,13 +243,37 @@
               white-space: nowrap;
               color: #ede7f0;
               font-size: 70px;
+              position: absolute;
             "
           >
             Nameee Heree
-            <span class="handle"></span>
-            <span class="handle rotate"></span>
-            <span class="handle left"></span>
-          </p>
+          </div>
+
+          <div
+            id="handles-layer"
+            style="
+              top: 0px;
+              left: 0px;
+              position: absolute;
+              pointer-events: none;
+            "
+          >
+            <span
+              class="handle"
+              id="handle-resize"
+              style="pointer-events: auto"
+            ></span>
+            <span
+              class="handle rotate"
+              id="handle-rotate"
+              style="pointer-events: auto"
+            ></span>
+            <span
+              class="handle left"
+              id="handle-resize-left"
+              style="pointer-events: auto"
+            ></span>
+          </div>
         </div>
       </preview-panel>
       <div
@@ -304,7 +300,6 @@
             background: #b53df9;
           "
           href="https://trakteer.id/DekReza/"
-          s
         >
           <p class="title">Trakteer</p>
         </a>
@@ -323,12 +318,5 @@
     </container>
 
     <script src="src/script.js"></script>
-    <!-- Cloudflare Web Analytics -->
-    <!-- <script
-      defer
-      src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon='{"token": "28f9fc5fba044c7c94150a58cedaa32c"}'
-    ></script> -->
-    <!-- End Cloudflare Web Analytics -->
   </body>
 </html>
